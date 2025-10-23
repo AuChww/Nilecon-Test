@@ -61,10 +61,5 @@ artifacts/
 appsettings.Development.json
 *.Development.json
 
-# SQLite database files
-*.db
-*.db-shm
-*.db-wal
-
 # Images uploaded by users
 !wwwroot/images/news/.gitkeep
