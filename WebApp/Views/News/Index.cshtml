@@ -1,0 +1,87 @@
+@model IEnumerable<WebApp.Entity.News>
+
+@{
+    ViewData["Title"] = "News";
+    Layout = "_Layout";
+}
+
+
+<header class="bg-orange-600 text-white text-2xl p-4 w-screeen">
+    <div class="max-h-72">
+        <h2>ข้อมูลข่าวสาร</h2>
+    </div>
+</header>
+
+<div class="w-screen mx-auto px-8 sm:px-16 md:px-24 lg:px-40 my-10">
+    <div class="flex justify-between my-10">
+        <div class="text-xl font-bold">ข้อมูลข่าวสารทั้งหมด</div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewsModal">
+            Add
+        </button>
+        @await Html.PartialAsync("_AddNews", new WebApp.Entity.News())
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+    @foreach (var item in Model)
+        {
+            var firstImg = System.Text.RegularExpressions.Regex.Match(item.NewsDetail, @"(https?:\/\/[^\s]+)").Value;
+            <div class="col">
+                <a href="@Url.Action("GetNewsById", "News", new { id = item.Id })" class="block hover:shadow-lg transition-shadow duration-300">
+                    <div class="bg-white rounded-lg overflow-hidden h-100">
+                        @if (!string.IsNullOrEmpty(firstImg))
+                        {
+                            <img src="@firstImg" class="w-full h-48 object-cover">
+                        }
+                        @if (!string.IsNullOrEmpty(item.NewsImage))
+                        {
+                            <img src="~/images/news/@item.NewsImage" alt="@item.NewsImage" class="w-full h-48 object-cover">
+                        }
+                        <div class="p-4">
+                            <h3 class="font-semibold text-lg text-gray-800">@item.NewsName</h3>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById("AddNews");
+    if (!form) return;
+
+    // ป้องกันการผูกซ้ำ: ถ้ามี handler อยู่แล้ว ให้คืนค่า
+    if (form._addNewsHandlerAttached) return;
+    form._addNewsHandlerAttached = true;
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        // Debug: ตรวจสอบข้อมูลที่จะส่ง
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+
+        const response = await fetch("/News/AddNews", { 
+            method: "POST",
+            body: formData
+        });
+        
+
+        if (response.ok) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById("addNewsModal"));
+            modal?.hide();
+            location.reload();
+            console.log("add success");
+        } else {
+            const text = await response.text();
+            alert("เกิดข้อผิดพลาดในการเพิ่มข่าว: " + text);
+            console.log("Response status:", response.status, "body:", text);
+        }
+    });
+});
+</script>
+}

@@ -1,0 +1,33 @@
+@model WebApp.Entity.News
+
+<div class="modal fade" id="addNewsModal" tabindex="-1" aria-labelledby="addNewsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-orange-600 text-white">
+                <h5 class="modal-title" id="addNewsLabel">เพิ่มข่าวสารใหม่</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="AddNews" asp-action="AddNews" asp-controller="News" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label asp-for="NewsName" class="form-label">ชื่อข่าว</label>
+                        <input asp-for="NewsName" name="NewsName" class="form-control" required />
+                        <span asp-validation-for="NewsName" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="NewsDetail" class="form-label">รายละเอียดข่าว</label>
+                        <textarea asp-for="NewsDetail" name="NewsDetail" class="form-control" required></textarea>
+                        <span asp-validation-for="NewsDetail" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">รูปภาพ</label>
+                        <input type="file" name="imageFile" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

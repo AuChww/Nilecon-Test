@@ -1,0 +1,96 @@
+@model WebApp.Entity.News
+
+@{
+    ViewData["Title"] = Model.NewsName;
+    Layout = "_Layout";
+}
+
+<header class="bg-orange-600 text-white text-2xl p-4 w-screeen">
+    <div class="max-h-72">
+        <h2>รายละเอียดข่าว</h2>
+    </div>
+</header>
+
+<div class="w-screen mx-auto px-40 py-8">
+    <h1 class="text-3xl font-bold mb-4">@Model.NewsName</h1>
+    
+    @if (!string.IsNullOrEmpty(Model.NewsImage))
+    {
+        <div class="mb-6">
+            <img src="~/images/news/@Model.NewsImage" 
+                    alt="@Model.NewsName" 
+                    class="w-full h-auto object-cover rounded-lg">
+        </div>
+    }
+
+    <div class="prose max-w-none">
+        @Html.Raw(Model.NewsDetail)
+    </div>
+
+    <div class="mt-8 flex gap-4">
+        <button type="button" 
+                class="btn btn-warning" 
+                data-bs-toggle="modal" 
+                data-bs-target="#editNewsModal">
+            <i class="fas fa-edit"></i> แก้ไข
+        </button>
+
+        <form method="post" 
+            action="@Url.Action("Delete", "News", new { id = Model.Id })"
+            onsubmit="return confirm('คุณต้องการลบข่าวนี้ใช่หรือไม่?');" 
+            class="inline">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> ลบ
+            </button>
+        </form>
+    </div>
+
+    @await Html.PartialAsync("_EditNews", Model)
+            
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("EditNews");
+            if (!form) return;
+
+            if (form._editNewsHandlerAttached) return;
+            form._editNewsHandlerAttached = true;
+
+            form.addEventListener("submit", async function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                
+                // Debug: log form data
+                console.log("Sending form data:");
+                for (let pair of formData.entries()) {
+                    console.log(`${pair[0]}: ${pair[1]}`);
+                }
+
+                try {
+                    const response = await fetch("/News/Edit", { 
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else if (response.ok) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById("editNewsModal"));
+                        modal?.hide();
+                        window.location.href = '/News';
+                    } else {
+                        const text = await response.text();
+                        console.error("Server response:", text);
+                        alert("เกิดข้อผิดพลาดในการแก้ไขข่าว: " + text);
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
+                }
+            });
+        });
+    </script>
+}

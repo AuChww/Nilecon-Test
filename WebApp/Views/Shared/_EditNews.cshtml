@@ -1,0 +1,42 @@
+@model WebApp.Entity.News
+
+<div class="modal fade" id="editNewsModal" tabindex="-1" aria-labelledby="editNewsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-orange-600 text-white">
+                <h5 class="modal-title" id="editNewsLabel">แก้ไขข่าว</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="EditNews" asp-action="Edit" asp-controller="News" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="Id" value="@Model.Id" />
+                    <input type="hidden" name="NewsImage" value="@Model.NewsImage" />
+
+                    <div class="mb-3">
+                        <label asp-for="NewsName" class="form-label">ชื่อข่าว</label>
+                        <input asp-for="NewsName" name="NewsName" class="form-control" value="@Model.NewsName" required />
+                        <span asp-validation-for="NewsName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="NewsDetail" class="form-label">รายละเอียดข่าว</label>
+                        <textarea asp-for="NewsDetail" name="NewsDetail" class="form-control" rows="10" required>@Model.NewsDetail</textarea>
+                        <span asp-validation-for="NewsDetail" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">รูปภาพ</label>
+                        <input type="file" name="imageFile" class="form-control" />
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="submit" class="btn btn-primary">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
