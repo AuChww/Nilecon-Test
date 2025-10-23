@@ -57,6 +57,41 @@ namespace WebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddNews([FromForm]News news, IFormFile? imageFile)
+        {
+            try 
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "news");
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    var extension = Path.GetExtension(imageFile.FileName);
+                    var fileName = $"NewsImage_{DateTime.Now.Ticks}{extension}";
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(stream);
+                    }
+
+                    news.NewsImage = fileName;
+                }
+
+                await _service.CreateAsync(news);
+                return RedirectToAction(nameof(GetAllNews));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([FromForm]News news, IFormFile? imageFile)
         {
             try 
